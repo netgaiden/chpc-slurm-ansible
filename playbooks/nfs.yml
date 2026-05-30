@@ -1,0 +1,49 @@
+---
+- name: Configure NFS shared /home
+  hosts: head
+  tasks:
+    - name: Enable NFS server
+      systemd:
+        name: "{{ item }}"
+        enabled: true
+        state: started
+      loop:
+        - nfs-server
+        - rpcbind
+        - nfs-idmapd
+
+    - name: Export /home
+      copy:
+        dest: /etc/exports.d/home.exports
+        content: |
+          /home 172.16.15.0/24(rw,sync,no_root_squash,no_subtree_check)
+
+    - name: Apply exports
+      command: exportfs -ra
+
+    - name: Open firewall for NFS
+      firewalld:
+        service: "{{ item }}"
+        permanent: true
+        immediate: true
+        state: enabled
+      loop:
+        - nfs
+        - rpc-bind
+        - mountd
+
+- name: Mount /home on compute nodes
+  hosts: compute
+  tasks:
+    - name: Mount NFS home
+      mount:
+        src: login01:/home
+        path: /home
+        fstype: nfs
+        state: mounted
+        opts: defaults,_netdev,x-systemd.automount
+
+    - name: Add NFS mount to fstab
+      lineinfile:
+        path: /etc/fstab
+        line: "login01:/home   /home   nfs   defaults,_netdev,x-systemd.automount,x-systemd.mount-timeout=10  0  0"

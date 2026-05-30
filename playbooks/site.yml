@@ -1,0 +1,9 @@
+---
+- name: Full CHPC-style Rocky 9 Slurm Cluster Setup
+  hosts: cluster
+  become: true
+
+- import_playbook: common.yml
+- import_playbook: munge.yml
+- import_playbook: nfs.yml
+- import_playbook: slurm.yml

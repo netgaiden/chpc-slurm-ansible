@@ -1,0 +1,70 @@
+---
+- name: Install and configure Slurm
+  hosts: cluster
+  tasks:
+    - name: Install Slurm packages
+      dnf:
+        name:
+          - slurm
+          - slurm-slurmd
+          - slurm-slurmctld
+          - slurm-slurmdbd
+        state: present
+
+    - name: Create slurm system user
+      user:
+        name: slurm
+        system: yes
+        home: /var/lib/slurm
+        shell: /bin/false
+        create_home: no
+
+    - name: Create Slurm directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: slurm
+        group: slurm
+        mode: '0755'
+      loop:
+        - /var/spool/slurmctld
+        - /var/spool/slurmd
+        - /var/run/slurm
+        - /var/log/slurm
+
+    - name: Deploy slurm.conf (head node)
+      template:
+        src: slurm.conf.j2
+        dest: /etc/slurm/slurm.conf
+        owner: slurm
+        group: slurm
+        mode: '0644'
+      when: inventory_hostname == "login01"
+      notify: restart slurmctld
+
+    - name: Copy slurm.conf to compute nodes
+      synchronize:
+        src: /etc/slurm/slurm.conf
+        dest: /etc/slurm/slurm.conf
+      delegate_to: login01
+      when: inventory_hostname != "login01"
+
+    - name: Start services on head node
+      systemd:
+        name: slurmctld
+        enabled: true
+        state: started
+      when: inventory_hostname == "login01"
+
+    - name: Start services on compute nodes
+      systemd:
+        name: slurmd
+        enabled: true
+        state: started
+      when: inventory_hostname != "login01"
+
+  handlers:
+    - name: restart slurmctld
+      systemd:
+        name: slurmctld
+        state: restarted

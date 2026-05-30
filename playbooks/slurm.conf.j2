@@ -1,0 +1,38 @@
+# ================================================
+# CHPC-style mini-cluster slurm.conf (Rocky 9 + Slurm 22.05)
+# ================================================
+
+ClusterName=utah-mini
+ControlMachine=login01
+ControlAddr=172.16.15.146
+
+SlurmUser=slurm
+SlurmdUser=root
+
+SlurmctldPort=6817
+SlurmdPort=6818
+
+# Required directories
+StateSaveLocation=/var/spool/slurmctld
+SlurmctldLogFile=/var/log/slurm/slurmctld.log
+SlurmdLogFile=/var/log/slurm/slurmd.log
+
+SlurmdDebug=3
+SlurmctldDebug=3
+
+# Node definitions (CHPC-style naming)
+NodeName=login01   CPUs=4   RealMemory=8000   State=UNKNOWN
+NodeName=cn[01-02] CPUs=2   RealMemory=4000   State=UNKNOWN
+
+# Partition (what you'll see with sinfo)
+PartitionName=debug   Nodes=cn[01-02]   Default=YES   MaxTime=INFINITE   State=UP
+
+# Plugins
+ProctrackType=proctrack/cgroup
+TaskPlugin=task/cgroup
+SelectType=select/cons_tres
+SelectTypeParameters=CR_Core_Memory
+
+# Accounting (simple and compatible with EPEL Slurm)
+AccountingStorageType=accounting_storage/none
+JobAcctGatherType=jobacct_gather/cgroup

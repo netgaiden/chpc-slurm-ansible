@@ -1,0 +1,27 @@
+---
+- name: Install common packages and enable CRB
+  hosts: cluster
+  tasks:
+    - name: Enable CodeReady Builder repository
+      command: /usr/bin/crb enable
+      changed_when: false
+
+    - name: Install base packages
+      dnf:
+        name:
+          - epel-release
+          - nfs-utils
+          - munge
+          - munge-libs
+          - openssl-devel
+          - pam-devel
+          - numactl-devel
+          - hwloc-devel
+          - lua-devel
+          - readline-devel
+          - ncurses-devel
+          - man2html
+          - libibumad
+          - rdma-core-devel
+        state: present
+        update_cache: true
