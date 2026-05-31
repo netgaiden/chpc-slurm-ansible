@@ -43,9 +43,13 @@
       notify: restart slurmctld
 
     - name: Copy slurm.conf to compute nodes
-      synchronize:
+      copy:
         src: /etc/slurm/slurm.conf
         dest: /etc/slurm/slurm.conf
+        owner: slurm
+        group: slurm
+        mode: '0644'
+        remote_src: yes
       delegate_to: login01
       when: inventory_hostname != "login01"
 

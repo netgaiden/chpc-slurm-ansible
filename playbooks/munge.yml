@@ -23,10 +23,13 @@
       when: inventory_hostname == "login01"
 
     - name: Copy munge key to compute nodes
-      synchronize:
+      copy:
         src: /etc/munge/munge.key
         dest: /etc/munge/munge.key
-        mode: push
+        owner: munge
+        group: munge
+        mode: '0400'
+        remote_src: yes
       delegate_to: login01
       when: inventory_hostname != "login01"
 

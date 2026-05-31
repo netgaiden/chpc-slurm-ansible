@@ -4,6 +4,7 @@
   tasks:
     - name: Enable CodeReady Builder repository
       command: /usr/bin/crb enable
+      become: true
       changed_when: false
 
     - name: Install base packages

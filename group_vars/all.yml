@@ -1,6 +1,8 @@
 ---
 ansible_user: rocky
 ansible_ssh_private_key_file: ~/.ssh/id_rsa
-become: true
-become_method: sudo
-become_user: root
+
+# Use ansible_ prefix to avoid reserved variable warnings
+ansible_become: true
+ansible_become_method: sudo
+ansible_become_user: root
