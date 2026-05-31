@@ -1,0 +1,17 @@
+---
+all:
+  children:
+    head:
+      hosts:
+        login01:
+          ansible_host: 172.16.15.146
+    compute:
+      hosts:
+        cn01:
+          ansible_host: 172.16.15.147
+        cn02:
+          ansible_host: 172.16.15.148
+    cluster:
+      children:
+        head:
+        compute:
